@@ -11,4 +11,4 @@ class Good:
         self.price = new_price
 
     def produce(self, stacks_added: float):
-        self.num_produced += stacks_added
+        self.num_produced += (stacks_added * 64)

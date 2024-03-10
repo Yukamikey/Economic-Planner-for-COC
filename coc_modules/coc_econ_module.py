@@ -50,6 +50,7 @@ class CycleManager:
         self.cycle_num += 1
 
 
+
     def end_cycle(self):
         """Ends a cycle, but the cycle is not deleted, but rather stored in a dictionary
 
@@ -57,6 +58,11 @@ class CycleManager:
 
         Another file called "gdp_logs.csv" is either created or appended to and the GDP value is calculated and written to the file with self.get_gdp()"""
         self.get_gdp()
+        this_cycle = self.current_cycle.name
+        previous_cycle = f"cycle_{self.cycles.index(self.current_cycle)}"
+
+        cycles_dictionary.cycles.update({this_cycle: self.current_cycle.gdp})
+
         logs = os.path.abspath("logs")
         cycle_filepath = os.path.join(logs, f"{self.current_cycle.name}.csv")
 
@@ -75,9 +81,6 @@ class CycleManager:
             if self.cycle_num > 1:
                 gdp_growth = self.get_gdp_growth()
                 writer.writerow([f"GDP Growth", f"{gdp_growth}%"])
-
-                this_cycle = self.current_cycle.name
-                previous_cycle = f"cycle_{self.cycles.index(self.current_cycle)}"
 
                 gdp_growths.update({f"from {previous_cycle} to "
                                                           f"{this_cycle}": gdp_growth})
@@ -102,6 +105,15 @@ class CycleManager:
         Params:
         good_to_remove popped from self.goods_produced"""
         self.current_cycle.goods_produced.pop(good_to_remove)
+
+    def produce_good(self, good_to_produce: str, num_to_produce: int):
+        for goods in self.current_cycle.goods_produced:
+            if goods.name == good_to_produce:
+                goods.produce(num_to_produce)
+                break
+
+
+
 
     def get_gdp(self):
         calculated_val = calc_gdp(self.current_cycle.goods_produced)

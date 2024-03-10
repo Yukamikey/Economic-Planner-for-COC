@@ -1,8 +1,11 @@
 import  numpy as np
 import csv
+import os
 from coc_modules.coc_stats_module import *
 from coc_modules.coc_goods_module import *
-from dictionaries import cycles_dictionary, gdp_growth_dictionary
+from dictionaries import cycles_dictionary
+from dictionaries.gdp_growth_dictionary import gdp_growths
+
 
 class GDP:
     def __init__(self, value: float):
@@ -54,28 +57,38 @@ class CycleManager:
 
         Another file called "gdp_logs.csv" is either created or appended to and the GDP value is calculated and written to the file with self.get_gdp()"""
         self.get_gdp()
+        logs = os.path.abspath("logs")
+        cycle_filepath = os.path.join(logs, f"{self.current_cycle.name}.csv")
 
-        with open(f"{self.current_cycle.name}.csv", "w") as production_sheet:
+        with open(f"{cycle_filepath}", "w") as production_sheet:
             writer = csv.writer(production_sheet)
+            writer.writerow(["Good", "Price", "Num Produced"])
             for goods in self.current_cycle.goods_produced:
                 writer.writerow([f"{goods.name}", f"${goods.price}", f"{goods.num_produced}"])
             writer.writerow([f"{self.current_cycle.name} GDP", f"${self.current_cycle.gdp.value}"])
 
-        with open(f"gdp_logs.csv", "a") as gdp_sheet:
+        gdp_log_filepath = os.path.join(logs, "gdp_logs.csv")
+        with open(gdp_log_filepath, "a") as gdp_sheet:
             writer = csv.writer(gdp_sheet)
             writer.writerow([f"{self.current_cycle.name} GDP", f"${self.current_cycle.gdp.value}"])
 
-            cycles_dictionary.cycles.update({self.current_cycle.name: self.current_cycle.gdp})
             if self.cycle_num > 1:
                 gdp_growth = self.get_gdp_growth()
-                writer.writerow([f"GDP Growth: ", gdp_growth])
+                writer.writerow([f"GDP Growth", f"{gdp_growth}%"])
 
-                gdp_growth_dictionary.gdp_growths.update({f"from cycle_{self.cycles.index(self.current_cycle)} to "
-                                                          f"{self.current_cycle.name}": gdp_growth})
+                this_cycle = self.current_cycle.name
+                previous_cycle = f"cycle_{self.cycles.index(self.current_cycle)}"
+
+                gdp_growths.update({f"from {previous_cycle} to "
+                                                          f"{this_cycle}": gdp_growth})
 
 
         self.current_cycle = None
 
+    def get_logs_file(self):
+        logs = os.path.abspath("logs")
+        gdp_filepath = os.path.join(logs, f"gdp_logs.csv")
+        return gdp_filepath
     def add_good(self, good_to_add: Good):
         """Adds good to goods_produced list
 

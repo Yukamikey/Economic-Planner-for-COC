@@ -5,15 +5,15 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import *
 import os
 
-ui = os.path.abspath("ui")
-display = os.path.join(ui, "econ_planner_ui.ui")
+ui_path = os.path.abspath("ui/econ_planner_ui.ui")
+print(ui_path)
 my_cycle_manager = econ.CycleManager([])
 
 class MyGui(QMainWindow):
 
     def __init__(self):
         super(MyGui, self).__init__()
-        uic.loadUi(display, self)
+        uic.loadUi(os.path.abspath("ui/econ_planner_ui.ui"), self)
         self.show()
 
         self.StartCycleButton.clicked.connect(self.ui_start_cycle)
